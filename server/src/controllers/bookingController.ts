@@ -43,9 +43,16 @@ export const createProvisionalBooking = async (
       data: booking,
       message: 'Provisional booking created. Please confirm within 15 minutes.',
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) throw error;
-    throw new AppError('Failed to create provisional booking', 500);
+    console.error('Provisional booking creation error:', error);
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((e: any) => e.message);
+      throw new AppError(`Validation failed: ${errors.join(', ')}`, 400);
+    }
+    
+    throw new AppError(error.message || 'Failed to create provisional booking', 500);
   }
 };
 
@@ -102,9 +109,10 @@ export const confirmBooking = async (req: AuthRequest, res: Response): Promise<v
       data: booking,
       message: 'Booking confirmed successfully',
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) throw error;
-    throw new AppError('Failed to confirm booking', 500);
+    console.error('Booking confirmation error:', error);
+    throw new AppError(error.message || 'Failed to confirm booking', 500);
   }
 };
 
@@ -119,8 +127,9 @@ export const getMyBookings = async (req: AuthRequest, res: Response): Promise<vo
       success: true,
       data: bookings,
     });
-  } catch (error) {
-    throw new AppError('Failed to fetch bookings', 500);
+  } catch (error: any) {
+    console.error('Fetch bookings error:', error);
+    throw new AppError(error.message || 'Failed to fetch bookings', 500);
   }
 };
 
@@ -157,9 +166,10 @@ export const cancelBooking = async (req: AuthRequest, res: Response): Promise<vo
       success: true,
       message: 'Booking cancelled successfully',
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) throw error;
-    throw new AppError('Failed to cancel booking', 500);
+    console.error('Booking cancellation error:', error);
+    throw new AppError(error.message || 'Failed to cancel booking', 500);
   }
 };
 
@@ -183,7 +193,8 @@ export const getAllBookings = async (req: Request, res: Response): Promise<void>
       data: bookings,
       count: bookings.length,
     });
-  } catch (error) {
-    throw new AppError('Failed to fetch all bookings', 500);
+  } catch (error: any) {
+    console.error('Fetch all bookings error:', error);
+    throw new AppError(error.message || 'Failed to fetch all bookings', 500);
   }
 };

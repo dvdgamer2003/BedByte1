@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export type BookingStatus = 'provisional' | 'confirmed' | 'admitted' | 'cancelled' | 'expired';
 
 export interface IBooking extends Document {
+  _id: mongoose.Types.ObjectId;
   hospitalId: mongoose.Types.ObjectId;
   patientId: mongoose.Types.ObjectId;
   bedId?: mongoose.Types.ObjectId;

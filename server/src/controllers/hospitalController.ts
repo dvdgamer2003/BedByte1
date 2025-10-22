@@ -174,8 +174,17 @@ export const createHospital = async (req: Request, res: Response): Promise<void>
       data: hospital,
       message: 'Hospital created successfully',
     });
-  } catch (error) {
-    throw new AppError('Failed to create hospital', 500);
+  } catch (error: any) {
+    if (error instanceof AppError) throw error;
+    console.error('Hospital creation error:', error);
+    
+    // Expose Mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map((e: any) => e.message);
+      throw new AppError(`Validation failed: ${errors.join(', ')}`, 400);
+    }
+    
+    throw new AppError(error.message || 'Failed to create hospital', 500);
   }
 };
 

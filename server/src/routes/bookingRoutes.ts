@@ -12,12 +12,14 @@ const router = Router();
 
 router.use(authenticate);
 
+// Admin routes - must be before other routes
+router.get('/', authorize('admin', 'hospital_staff'), getAllBookings);
+router.get('/all', authorize('admin', 'hospital_staff'), getAllBookings);
+
+// User routes
 router.post('/provisional', createProvisionalBooking);
 router.post('/:id/confirm', confirmBooking);
 router.get('/my-bookings', getMyBookings);
 router.post('/:id/cancel', cancelBooking);
-
-// Admin routes
-router.get('/all', authorize('admin', 'hospital_staff'), getAllBookings);
 
 export default router;

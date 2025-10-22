@@ -7,15 +7,31 @@ import { AppError } from '../middleware/errorHandler';
 // Get nearby hospitals
 export const getNearbyHospitals = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { latitude, longitude, maxDistance = 10000 } = req.query; // maxDistance in meters (default 10km)
+    const { latitude, longitude, radius = 10 } = req.query; // radius in kilometers (default 10km)
 
+    // Validate required parameters
     if (!latitude || !longitude) {
       throw new AppError('Latitude and longitude are required', 400);
     }
 
+    // Parse and validate latitude
     const lat = parseFloat(latitude as string);
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      throw new AppError('Invalid latitude. Must be between -90 and 90', 400);
+    }
+
+    // Parse and validate longitude
     const lng = parseFloat(longitude as string);
-    const distance = parseInt(maxDistance as string);
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      throw new AppError('Invalid longitude. Must be between -180 and 180', 400);
+    }
+
+    // Parse and validate radius (convert km to meters for MongoDB)
+    const radiusKm = parseFloat(radius as string);
+    if (isNaN(radiusKm) || radiusKm <= 0 || radiusKm > 100) {
+      throw new AppError('Invalid radius. Must be between 0 and 100 kilometers', 400);
+    }
+    const radiusMeters = radiusKm * 1000;
 
     // Find hospitals near the user location using geospatial query
     const hospitals = await Hospital.find({
@@ -25,7 +41,7 @@ export const getNearbyHospitals = async (req: Request, res: Response): Promise<v
             type: 'Point',
             coordinates: [lng, lat], // [longitude, latitude]
           },
-          $maxDistance: distance,
+          $maxDistance: radiusMeters,
         },
       },
     }).limit(50);
@@ -97,11 +113,25 @@ export const getNearbyHospitals = async (req: Request, res: Response): Promise<v
       })
     );
 
+    // Handle empty results
+    if (hospitalsWithBeds.length === 0) {
+      res.json({
+        success: true,
+        data: [],
+        count: 0,
+        message: `No hospitals found within ${radiusKm}km radius. Try increasing the search radius.`,
+        userLocation: { latitude: lat, longitude: lng },
+        searchRadius: `${radiusKm}km`,
+      });
+      return;
+    }
+
     res.json({
       success: true,
       data: hospitalsWithBeds,
       count: hospitalsWithBeds.length,
       userLocation: { latitude: lat, longitude: lng },
+      searchRadius: `${radiusKm}km`,
     });
   } catch (error: any) {
     console.error('Error fetching nearby hospitals:', error);
@@ -113,15 +143,31 @@ export const getNearbyHospitals = async (req: Request, res: Response): Promise<v
 // Get nearby medical stores
 export const getNearbyMedicalStores = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { latitude, longitude, maxDistance = 10000, medicine } = req.query; // maxDistance in meters (default 10km)
+    const { latitude, longitude, radius = 10, medicine } = req.query; // radius in kilometers (default 10km)
 
+    // Validate required parameters
     if (!latitude || !longitude) {
       throw new AppError('Latitude and longitude are required', 400);
     }
 
+    // Parse and validate latitude
     const lat = parseFloat(latitude as string);
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      throw new AppError('Invalid latitude. Must be between -90 and 90', 400);
+    }
+
+    // Parse and validate longitude
     const lng = parseFloat(longitude as string);
-    const distance = parseInt(maxDistance as string);
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      throw new AppError('Invalid longitude. Must be between -180 and 180', 400);
+    }
+
+    // Parse and validate radius (convert km to meters for MongoDB)
+    const radiusKm = parseFloat(radius as string);
+    if (isNaN(radiusKm) || radiusKm <= 0 || radiusKm > 100) {
+      throw new AppError('Invalid radius. Must be between 0 and 100 kilometers', 400);
+    }
+    const radiusMeters = radiusKm * 1000;
 
     // Build query
     const query: any = {
@@ -131,7 +177,7 @@ export const getNearbyMedicalStores = async (req: Request, res: Response): Promi
             type: 'Point',
             coordinates: [lng, lat], // [longitude, latitude]
           },
-          $maxDistance: distance,
+          $maxDistance: radiusMeters,
         },
       },
     };
@@ -184,16 +230,36 @@ export const getNearbyMedicalStores = async (req: Request, res: Response): Promi
       };
     });
 
+    // Handle empty results
+    if (storesWithDistance.length === 0) {
+      const message = medicine
+        ? `No medical stores found with "${medicine}" within ${radiusKm}km radius. Try increasing the search radius or searching for different medicine.`
+        : `No medical stores found within ${radiusKm}km radius. Try increasing the search radius.`;
+      
+      res.json({
+        success: true,
+        data: [],
+        count: 0,
+        message,
+        userLocation: { latitude: lat, longitude: lng },
+        searchRadius: `${radiusKm}km`,
+        searchQuery: medicine || null,
+      });
+      return;
+    }
+
     res.json({
       success: true,
       data: storesWithDistance,
       count: storesWithDistance.length,
       userLocation: { latitude: lat, longitude: lng },
+      searchRadius: `${radiusKm}km`,
       searchQuery: medicine || null,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Error fetching nearby medical stores:', error);
     if (error instanceof AppError) throw error;
-    throw new AppError('Failed to fetch nearby medical stores', 500);
+    throw new AppError(error.message || 'Failed to fetch nearby medical stores', 500);
   }
 };
 

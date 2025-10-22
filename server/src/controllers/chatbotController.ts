@@ -76,12 +76,55 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
       return;
     }
 
-    // Get AI response
-    const aiResponse = await geminiService.generateMedicalAdvice(
-      message,
-      chatSession.symptoms,
-      prescriptionType
-    );
+    // Get AI response with fallback
+    let aiResponse: string;
+    try {
+      aiResponse = await geminiService.generateMedicalAdvice(
+        message,
+        chatSession.symptoms,
+        prescriptionType
+      );
+    } catch (aiError: any) {
+      console.error('Gemini API error:', aiError);
+      
+      // Provide helpful fallback response
+      aiResponse = `Thank you for sharing your symptoms. I'm having trouble connecting to our AI service at the moment.
+
+**For immediate assistance:**
+- 🏥 Visit the nearest hospital if symptoms are severe
+- 📞 Call emergency services (911/108) for urgent medical attention
+- 💊 For fever: Rest, stay hydrated, take paracetamol if needed
+- 🌡️ Monitor your temperature regularly
+
+**Please note:** This is not a substitute for professional medical advice. Consult a licensed doctor for proper diagnosis and treatment.
+
+Would you like to:
+1. Search for nearby hospitals?
+2. Book an appointment with a doctor?
+3. Try again later when our AI service is available?`;
+
+      // Still track this interaction
+      chatSession.messages.push({
+        role: 'bot',
+        text: aiResponse,
+        timestamp: new Date(),
+      });
+      
+      await chatSession.save();
+      
+      res.json({
+        success: true,
+        data: {
+          sessionId: newSessionId,
+          message: aiResponse,
+          severity,
+          isOffline: true,
+          prescriptions: [],
+          requiresDoctorReview: false,
+        },
+      });
+      return;
+    }
 
     // Add bot message
     chatSession.messages.push({
@@ -117,8 +160,30 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
     });
   } catch (error: any) {
     console.error('Chatbot error:', error);
+    console.error('Error details:', error.stack);
+    
     if (error instanceof AppError) throw error;
-    throw new AppError(error.message || 'Failed to process message', 500);
+    
+    // Check for specific error types
+    if (error.message?.includes('API key') || error.message?.includes('GOOGLE_API_KEY') || error.message?.includes('GEMINI_API_KEY')) {
+      throw new AppError('AI service not configured. Please contact support.', 500);
+    }
+    
+    if (error.message?.includes('quota') || error.message?.includes('RESOURCE_EXHAUSTED')) {
+      throw new AppError('AI service temporarily unavailable. Please try again later.', 503);
+    }
+    
+    if (error.message?.includes('timeout')) {
+      throw new AppError('Request timeout. Please try again.', 504);
+    }
+    
+    if (error.message?.includes('model') || error.message?.includes('not found')) {
+      throw new AppError('AI model configuration error. Please contact support.', 500);
+    }
+    
+    // Generic error with actual message
+    const errorMessage = error.message || 'Failed to process your message. Please try again.';
+    throw new AppError(errorMessage, 500);
   }
 };
 

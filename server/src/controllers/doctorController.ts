@@ -84,7 +84,7 @@ export const checkAvailability = async (req: Request, res: Response): Promise<vo
     const dayAvailability = doctor.availability.find(a => a.day === dayName);
 
     if (!dayAvailability) {
-      return res.json({
+      res.json({
         success: true,
         data: {
           available: false,
@@ -92,6 +92,7 @@ export const checkAvailability = async (req: Request, res: Response): Promise<vo
           message: 'Doctor is not available on this day',
         },
       });
+      return;
     }
 
     // Get booked slots for the date

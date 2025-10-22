@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IPayment extends Document {
+  _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   bookingId?: mongoose.Types.ObjectId;
   appointmentId?: mongoose.Types.ObjectId;

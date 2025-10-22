@@ -4,6 +4,50 @@ import Doctor from '../models/Doctor';
 import { AppError } from '../middleware/errorHandler';
 import { AuthRequest } from '../middleware/auth';
 
+// Smart GET handler - returns all appointments for admin, user's appointments for patients
+export const getAppointments = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userRole = req.user?.role;
+    
+    // Admin gets all appointments
+    if (userRole === 'admin' || userRole === 'hospital_staff') {
+      const { status, hospitalId, doctorId } = req.query;
+      
+      const query: any = {};
+      if (status) query.status = status;
+      if (hospitalId) query.hospitalId = hospitalId;
+      if (doctorId) query.doctorId = doctorId;
+
+      const appointments = await Appointment.find(query)
+        .populate('patientId', 'name email phone')
+        .populate('doctorId', 'name specialization consultationFee')
+        .populate('hospitalId', 'name city address phone email')
+        .sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: appointments,
+        count: appointments.length,
+      });
+    } else {
+      // Regular users get their own appointments
+      const appointments = await Appointment.find({ patientId: req.user?._id })
+        .populate('doctorId', 'name specialization consultationFee')
+        .populate('hospitalId', 'name city address')
+        .sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: appointments,
+        count: appointments.length,
+      });
+    }
+  } catch (error: any) {
+    console.error('Get appointments error:', error);
+    throw new AppError(error.message || 'Failed to fetch appointments', 500);
+  }
+};
+
 // Book appointment
 export const bookAppointment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export type RoomType = 'General' | 'ICU' | 'Private';
 
 export interface IBed extends Document {
+  _id: mongoose.Types.ObjectId;
   hospitalId: mongoose.Types.ObjectId;
   roomType: RoomType;
   bedNumber: string;

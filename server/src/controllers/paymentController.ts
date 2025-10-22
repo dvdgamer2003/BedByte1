@@ -74,9 +74,10 @@ export const createPaymentOrder = async (req: AuthRequest, res: Response): Promi
       },
       message: 'Payment order created successfully',
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) throw error;
-    throw new AppError('Failed to create payment order', 500);
+    console.error('Payment order creation error:', error);
+    throw new AppError(error.message || 'Failed to create payment order', 500);
   }
 };
 
@@ -139,9 +140,10 @@ export const verifyPayment = async (req: AuthRequest, res: Response): Promise<vo
       message: 'Payment verified successfully',
       data: payment,
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) throw error;
-    throw new AppError('Payment verification failed', 500);
+    console.error('Payment verification error:', error);
+    throw new AppError(error.message || 'Payment verification failed', 500);
   }
 };
 
@@ -163,8 +165,9 @@ export const getMyPayments = async (req: AuthRequest, res: Response): Promise<vo
       data: payments,
       count: payments.length,
     });
-  } catch (error) {
-    throw new AppError('Failed to fetch payments', 500);
+  } catch (error: any) {
+    console.error('Fetch my payments error:', error);
+    throw new AppError(error.message || 'Failed to fetch payments', 500);
   }
 };
 
@@ -189,9 +192,10 @@ export const getPaymentById = async (req: AuthRequest, res: Response): Promise<v
       success: true,
       data: payment,
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) throw error;
-    throw new AppError('Failed to fetch payment', 500);
+    console.error('Fetch payment error:', error);
+    throw new AppError(error.message || 'Failed to fetch payment', 500);
   }
 };
 
@@ -211,12 +215,12 @@ export const requestRefund = async (req: AuthRequest, res: Response): Promise<vo
       throw new AppError('Not authorized', 403);
     }
 
-    if (payment.status !== 'success') {
-      throw new AppError('Only successful payments can be refunded', 400);
-    }
-
     if (payment.status === 'refunded') {
       throw new AppError('Payment already refunded', 400);
+    }
+
+    if (payment.status !== 'success') {
+      throw new AppError('Only successful payments can be refunded', 400);
     }
 
     // Create refund with Razorpay
@@ -255,9 +259,10 @@ export const requestRefund = async (req: AuthRequest, res: Response): Promise<vo
         amount: refund.amount,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AppError) throw error;
-    throw new AppError('Failed to process refund', 500);
+    console.error('Refund processing error:', error);
+    throw new AppError(error.message || 'Failed to process refund', 500);
   }
 };
 
@@ -291,8 +296,9 @@ export const getAllPayments = async (req: Request, res: Response): Promise<void>
       count: payments.length,
       totalAmount,
     });
-  } catch (error) {
-    throw new AppError('Failed to fetch payments', 500);
+  } catch (error: any) {
+    console.error('Fetch all payments error:', error);
+    throw new AppError(error.message || 'Failed to fetch payments', 500);
   }
 };
 
@@ -329,7 +335,8 @@ export const getPaymentStats = async (req: Request, res: Response): Promise<void
         byStatus: stats,
       },
     });
-  } catch (error) {
-    throw new AppError('Failed to fetch payment statistics', 500);
+  } catch (error: any) {
+    console.error('Payment statistics error:', error);
+    throw new AppError(error.message || 'Failed to fetch payment statistics', 500);
   }
 };
