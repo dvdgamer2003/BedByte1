@@ -11,7 +11,7 @@ export const initializeSocket = (httpServer: HTTPServer): SocketServer => {
         'http://localhost:5173',
         'https://getbedplus.netlify.app',
         process.env.CLIENT_URL
-      ].filter(Boolean),
+      ].filter((url): url is string => Boolean(url)),
       methods: ['GET', 'POST'],
       credentials: true,
     },
