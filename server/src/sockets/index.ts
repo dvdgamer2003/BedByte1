@@ -7,8 +7,13 @@ import Hospital from '../models/Hospital';
 export const initializeSocket = (httpServer: HTTPServer): SocketServer => {
   const io = new SocketServer(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      origin: [
+        'http://localhost:5173',
+        'https://getbedplus.netlify.app',
+        process.env.CLIENT_URL
+      ].filter(Boolean),
       methods: ['GET', 'POST'],
+      credentials: true,
     },
   });
 
