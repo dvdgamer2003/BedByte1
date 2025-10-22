@@ -1,11 +1,52 @@
+<<<<<<< HEAD
 [build]
   command = "npm run build"
   publish = "dist"
 
+=======
+# Netlify Build Configuration
+# This file configures how Netlify builds and deploys your frontend
+
+[build]
+  # Base directory - where your frontend code lives (lowercase to match actual folder)
+  base = "client"
+  
+  # Build command - runs the production build
+  command = "npm run build"
+  
+  # Publish directory - where the built files are output (relative to base)
+  publish = "dist"
+
+# Environment variables for the build
+[build.environment]
+  # Node.js version to use during build
+  NODE_VERSION = "18"
+
+# Redirect rules for SPA (Single Page Application)
+# This ensures that all routes are handled by your React app
+>>>>>>> 03c9698 (Reupload: clean client folder with latest code)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
+<<<<<<< HEAD
 [build.environment]
   NODE_VERSION = "18"
+=======
+# Headers for security and performance (optional but recommended)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # Cache control for assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+>>>>>>> 03c9698 (Reupload: clean client folder with latest code)

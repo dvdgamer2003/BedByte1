@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 npm-debug.log*
@@ -38,3 +39,7 @@ coverage/
 *.tmp
 *.temp
 .cache
+=======
+# Local Netlify folder
+.netlify
+>>>>>>> 03c9698 (Reupload: clean client folder with latest code)
