@@ -4,11 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npx tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
-  "author": "Divyesh A Ravane <divyeshravane21543@gmail.com>",
+  "author": "Divyesh A Ravane <divyeshravane2154@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.6.5",
