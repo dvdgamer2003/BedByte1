@@ -1,6 +1,7 @@
 // Load environment variables FIRST before any other imports
 import dotenv from 'dotenv';
 dotenv.config();
+
 import express, { Express } from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
@@ -9,6 +10,7 @@ import morgan from 'morgan';
 import { connectDB } from './config/db';
 import { errorHandler } from './middleware/errorHandler';
 import { initializeSocket } from './sockets';
+
 // Import routes
 import authRoutes from './routes/authRoutes';
 import hospitalRoutes from './routes/hospitalRoutes';
@@ -23,14 +25,18 @@ import locationRoutes from './routes/locationRoutes';
 import chatbotRoutes from './routes/chatbotRoutes';
 import adminDataRoutes from './routes/adminDataRoutes';
 import approvalRoutes from './routes/approvalRoutes';
+
 const app: Express = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
+
 // Initialize Socket.io
 const io = initializeSocket(httpServer);
+
 // Middleware
 app.use(helmet());
-// Configure CORS for development and production (Netlify)
+
+// Configure CORS for development and production (Netlify & Vercel)
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -40,6 +46,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   // Allow common Netlify patterns
   /\.netlify\.app$/,
+  // Allow common Vercel patterns
+  /\.vercel\.app$/,
 ];
 
 app.use(cors({
@@ -47,14 +55,14 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    // Check if origin is in allowed list or matches Netlify pattern
+    // Check if origin is in allowed list or matches Netlify/Vercel pattern
     const isAllowed = allowedOrigins.some(allowed => {
       if (typeof allowed === 'string') return allowed === origin;
       if (allowed instanceof RegExp) return allowed.test(origin);
       return false;
     });
     
-    if (isAllowed || origin.endsWith('.netlify.app')) {
+    if (isAllowed || origin.endsWith('.netlify.app') || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -62,11 +70,14 @@ app.use(cors({
   },
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+
 // Make io accessible in controllers
 app.set('io', io);
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -75,6 +86,7 @@ app.get('/health', (req, res) => {
     timestamp: new Date(),
   });
 });
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/hospitals', hospitalRoutes);
@@ -89,6 +101,7 @@ app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/admin-data', adminDataRoutes);
 app.use('/api/approvals', approvalRoutes);
 app.use('/api', locationRoutes);
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -96,8 +109,10 @@ app.use((req, res) => {
     error: 'Route not found',
   });
 });
+
 // Error handler
 app.use(errorHandler);
+
 // Start server
 const startServer = async () => {
   try {
@@ -112,16 +127,19 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
   console.error('🚨 Unhandled Rejection at:', promise, 'reason:', reason);
   // Don't exit the process - keep server running
 });
+
 // Handle uncaught exceptions
 process.on('uncaughtException', (error: Error) => {
   console.error('🚨 Uncaught Exception:', error);
   // Don't exit the process - keep server running
 });
+
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('👋 SIGTERM signal received: closing HTTP server');
@@ -130,5 +148,7 @@ process.on('SIGTERM', () => {
     process.exit(0);
   });
 });
+
 startServer();
+
 export { app, io };
