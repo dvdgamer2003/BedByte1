@@ -1,0 +1,52 @@
+{
+  "name": "getbeds-clone-server",
+  "version": "1.0.0",
+  "description": "Backend for getbeds-clone hospital management system",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "seed": "ts-node src/scripts/seed.ts",
+    "seed-doctors": "ts-node src/scripts/seedDoctors.ts",
+    "seed-medicals": "ts-node src/scripts/seedMedicalStores.ts",
+    "seed-admin": "ts-node src/scripts/seedAdmin.ts",
+    "lint": "eslint . --ext .ts,.js",
+    "seed:all": "npm run seed-admin && npm run seed && npm run seed-doctors && npm run seed-medicals"
+  },
+  "keywords": [
+    "hospital",
+    "booking",
+    "mern",
+    "socket.io"
+  ],
+  "author": "Divyesh A Ravane <divyeshravane21543@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.3",
+    "morgan": "^1.10.0",
+    "razorpay": "^2.9.6",
+    "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^6.16.0",
+    "@typescript-eslint/parser": "^6.16.0",
+    "eslint": "^8.56.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}

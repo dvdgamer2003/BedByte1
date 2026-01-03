@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <!-- Background Circle -->
+  <circle cx="300" cy="300" r="280" fill="#ffffff"/>
+  
+  <!-- BedByte+ Text (Curved Top) -->
+  <defs>
+    <path id="curve" d="M 100,300 A 200,200 0 0,1 500,300"/>
+  </defs>
+  <text fill="#a87b7b" font-family="Arial, sans-serif" font-size="52" font-weight="600">
+    <textPath href="#curve" startOffset="50%" text-anchor="middle">
+      BedByte+
+    </textPath>
+  </text>
+  
+  <!-- Hospital Bed Icon (Simplified) -->
+  <rect x="260" y="370" width="70" height="40" rx="5" fill="#4a90e2" opacity="0.8"/>
+  <circle cx="265" cy="415" r="8" fill="#2c5282"/>
+  <circle cx="325" cy="415" r="8" fill="#2c5282"/>
+  <rect x="330" y="355" width="8" height="50" fill="#5a7a9a"/>
+  <circle cx="334" cy="350" r="6" fill="#3d5a7a"/>
+  
+  <!-- Cat Silhouette (Simplified) -->
+  <ellipse cx="230" cy="390" rx="28" ry="32" fill="#f4a460"/>
+  <ellipse cx="215" cy="375" rx="8" ry="12" fill="#f4a460"/>
+  <ellipse cx="245" cy="375" rx="8" ry="12" fill="#f4a460"/>
+  <path d="M 205,390 Q 200,400 205,405" stroke="#e67e22" stroke-width="2" fill="none"/>
+  
+  <!-- Since 2025 Text -->
+  <text x="300" y="490" fill="#a87b7b" font-family="Georgia, serif" font-size="28" font-style="italic" text-anchor="middle">
+    Since 2025
+  </text>
+  
+  <!-- Decorative Paw Prints -->
+  <g fill="#e8d5d5" opacity="0.4">
+    <circle cx="150" cy="250" r="8"/>
+    <circle cx="145" cy="265" r="6"/>
+    <circle cx="155" cy="265" r="6"/>
+    
+    <circle cx="450" cy="250" r="8"/>
+    <circle cx="445" cy="265" r="6"/>
+    <circle cx="455" cy="265" r="6"/>
+  </g>
+</svg>
