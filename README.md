@@ -1,5 +1,4 @@
-# 🏥 GetBeds+ | Advanced Hospital Management Platform
-
+# 🏥 BedByte+ | Advanced Hospital Management Platform
 **A premium, production-ready hospital management system with AI chatbot, emergency booking, doctor appointments, and real-time tracking.**
 
 [![MERN Stack](https://img.shields.io/badge/Stack-MERN-green)]() [![AI Powered](https://img.shields.io/badge/AI-Gemini-orange)]() [![Status](https://img.shields.io/badge/Status-Production%20Ready-success)]() [![License](https://img.shields.io/badge/License-MIT-blue)]()
@@ -8,7 +7,7 @@
 
 ## 🌟 Overview
 
-GetBeds+ is a comprehensive hospital management platform that revolutionizes patient care through:
+BedByte+ is a comprehensive hospital management platform that revolutionizes patient care through:
 
 - 🤖 **AI Medical Chatbot** - Gemini AI-powered health assistant with 3 medicine types
 - 🚨 **Emergency Fast Booking** - Priority-based emergency bed allocation  
@@ -196,7 +195,7 @@ Quick links:
 ```bash
 # 1. Clone repository
 git clone <repository-url>
-cd getbeds-clone
+cd BedByte-clone
 
 # 2. Install dependencies
 cd server && npm install
@@ -236,7 +235,7 @@ npm run dev
 ### Demo Credentials
 
 ```
-Email: admin@getbeds.com
+Email: admin@BedByte.com
 Password: admin123
 Role: Admin (full access)
 ```
@@ -304,7 +303,7 @@ Expiry: Any future date
 ## 📂 Project Structure
 
 ```
-getbeds-clone/
+BedByte-clone/
 ├── server/
 │   ├── src/
 │   │   ├── models/          # Mongoose models
@@ -498,7 +497,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## 🙏 Acknowledgments
 
-- Inspired by GetBeds (educational purposes only)
+- Inspired by BedByte (educational purposes only)
 - ShadCN UI for component library
 - Razorpay for payment gateway
 - MongoDB Atlas for database
