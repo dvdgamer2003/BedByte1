@@ -167,7 +167,33 @@ export const getAggregatedAvailability = async (
 // Admin: Create Hospital
 export const createHospital = async (req: Request, res: Response): Promise<void> => {
   try {
-    const hospital = await Hospital.create(req.body);
+    const hospitalData = { ...req.body };
+
+    // Ensure valid GeoJSON location
+    // If location is missing or incomplete, provide default coordinates (Mumbai)
+    // This is required because the Mongoose schema defaults 'type: Point' which creates an invalid object without coordinates
+    if (!hospitalData.location || !hospitalData.location.coordinates || hospitalData.location.coordinates.length === 0) {
+      // Check if we have legacy coordinates
+      if (hospitalData.coordinates && hospitalData.coordinates.lat && hospitalData.coordinates.lng) {
+        hospitalData.location = {
+          type: 'Point',
+          coordinates: [Number(hospitalData.coordinates.lng), Number(hospitalData.coordinates.lat)],
+        };
+      } else {
+        // Default to Mumbai coordinates if nothing provided
+        hospitalData.location = {
+          type: 'Point',
+          coordinates: [72.8777, 19.0760], // [lng, lat]
+        };
+        // Also sync legacy coordinates field
+        hospitalData.coordinates = {
+          lat: 19.0760,
+          lng: 72.8777,
+        };
+      }
+    }
+
+    const hospital = await Hospital.create(hospitalData);
 
     res.status(201).json({
       success: true,
@@ -177,13 +203,18 @@ export const createHospital = async (req: Request, res: Response): Promise<void>
   } catch (error: any) {
     if (error instanceof AppError) throw error;
     console.error('Hospital creation error:', error);
-    
+
     // Expose Mongoose validation errors
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map((e: any) => e.message);
       throw new AppError(`Validation failed: ${errors.join(', ')}`, 400);
     }
-    
+
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      throw new AppError('A hospital with this email or name already exists', 400);
+    }
+
     throw new AppError(error.message || 'Failed to create hospital', 500);
   }
 };
@@ -197,7 +228,7 @@ export const deleteHospital = async (req: Request, res: Response): Promise<void>
     await Bed.deleteMany({ hospitalId: id });
 
     const hospital = await Hospital.findByIdAndDelete(id);
-    
+
     if (!hospital) {
       throw new AppError('Hospital not found', 404);
     }

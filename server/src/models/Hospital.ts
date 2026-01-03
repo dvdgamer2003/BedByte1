@@ -61,7 +61,7 @@ const hospitalSchema = new Schema<IHospital>(
       type: {
         type: String,
         enum: ['Point'],
-        default: 'Point',
+        // default: 'Point', // Removed to prevent incomplete GeoJSON object creation
       },
       coordinates: {
         type: [Number], // [longitude, latitude]

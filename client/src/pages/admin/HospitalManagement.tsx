@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Building2, 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  Search, 
+import {
+  Building2,
+  Plus,
+  Edit2,
+  Trash2,
+  Search,
   MapPin,
   Phone,
   Mail,
@@ -40,16 +40,16 @@ const HospitalManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [cityFilter, setCityFilter] = useState('');
   const [cities, setCities] = useState<string[]>([]);
-  
+
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
-  
+
   // Toast states
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  
+
   // Form state
   const [formData, setFormData] = useState({
     name: '',
@@ -74,7 +74,7 @@ const HospitalManagement = () => {
       setLoading(true);
       const response = await api.get('/hospitals');
       setHospitals(response.data.data);
-      
+
       // Extract unique cities
       const uniqueCities = [...new Set(response.data.data.map((h: Hospital) => h.city))] as string[];
       setCities(uniqueCities);
@@ -158,7 +158,7 @@ const HospitalManagement = () => {
 
   const submitEdit = async () => {
     if (!selectedHospital) return;
-    
+
     try {
       setLoading(true);
       await api.put(`/hospitals/${selectedHospital._id}`, formData);
@@ -174,7 +174,7 @@ const HospitalManagement = () => {
 
   const confirmDelete = async () => {
     if (!selectedHospital) return;
-    
+
     try {
       setLoading(true);
       await api.delete(`/hospitals/${selectedHospital._id}`);
@@ -187,116 +187,6 @@ const HospitalManagement = () => {
       setLoading(false);
     }
   };
-
-  const HospitalModal = ({ isEdit }: { isEdit?: boolean }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-      >
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-t-2xl">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
-            <Building2 className="h-7 w-7" />
-            {isEdit ? 'Edit Hospital' : 'Add New Hospital'}
-          </h2>
-        </div>
-
-        <div className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Hospital Name *</label>
-            <Input
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter hospital name"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
-              <Input
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                placeholder="City"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
-              <Input
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+91 XXXXXXXXXX"
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
-            <Input
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              placeholder="Full address"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-            <Input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="hospital@example.com"
-            />
-          </div>
-
-          <div className="flex gap-6">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.opdAvailable}
-                onChange={(e) => setFormData({ ...formData, opdAvailable: e.target.checked })}
-                className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-              />
-              <span className="text-sm font-medium text-gray-700">OPD Available</span>
-            </label>
-
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={formData.emergencyAvailable}
-                onChange={(e) => setFormData({ ...formData, emergencyAvailable: e.target.checked })}
-                className="w-5 h-5 text-red-600 rounded focus:ring-2 focus:ring-red-500"
-              />
-              <span className="text-sm font-medium text-gray-700">Emergency Available</span>
-            </label>
-          </div>
-        </div>
-
-        <div className="flex gap-3 p-6 pt-0">
-          <Button
-            variant="outline"
-            onClick={() => isEdit ? setShowEditModal(false) : setShowAddModal(false)}
-            className="flex-1"
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={isEdit ? submitEdit : submitAdd}
-            disabled={loading || !formData.name || !formData.city || !formData.address || !formData.phone}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-green-600"
-          >
-            {loading ? 'Saving...' : isEdit ? 'Update Hospital' : 'Add Hospital'}
-          </Button>
-        </div>
-      </motion.div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 py-8">
@@ -313,8 +203,26 @@ const HospitalManagement = () => {
         onCancel={() => setShowDeleteModal(false)}
       />
 
-      {showAddModal && <HospitalModal />}
-      {showEditModal && <HospitalModal isEdit />}
+      {showAddModal && (
+        <HospitalModal
+          formData={formData}
+          setFormData={setFormData}
+          onClose={() => setShowAddModal(false)}
+          onSubmit={submitAdd}
+          loading={loading}
+        />
+      )}
+
+      {showEditModal && (
+        <HospitalModal
+          isEdit
+          formData={formData}
+          setFormData={setFormData}
+          onClose={() => setShowEditModal(false)}
+          onSubmit={submitEdit}
+          loading={loading}
+        />
+      )}
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -335,6 +243,7 @@ const HospitalManagement = () => {
               onClick={handleAdd}
               className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 shadow-lg"
               size="lg"
+              disabled={loading}
             >
               <Plus className="h-5 w-5 mr-2" />
               Add Hospital
@@ -469,5 +378,125 @@ const HospitalManagement = () => {
     </div>
   );
 };
+
+interface HospitalModalProps {
+  isEdit?: boolean;
+  formData: any;
+  setFormData: (data: any) => void;
+  onClose: () => void;
+  onSubmit: () => void;
+  loading: boolean;
+}
+
+const HospitalModal = ({ isEdit, formData, setFormData, onClose, onSubmit, loading }: HospitalModalProps) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+    >
+      <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-green-600 text-white p-6 rounded-t-2xl">
+        <h2 className="text-2xl font-bold flex items-center gap-3">
+          <Building2 className="h-7 w-7" />
+          {isEdit ? 'Edit Hospital' : 'Add New Hospital'}
+        </h2>
+      </div>
+
+      <div className="p-6 space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Hospital Name *</label>
+          <Input
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Enter hospital name"
+            required
+            autoFocus
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">City *</label>
+            <Input
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              placeholder="City"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
+            <Input
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="+91 XXXXXXXXXX"
+              required
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
+          <Input
+            value={formData.address}
+            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            placeholder="Full address"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="hospital@example.com"
+          />
+        </div>
+
+        <div className="flex gap-6">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.opdAvailable}
+              onChange={(e) => setFormData({ ...formData, opdAvailable: e.target.checked })}
+              className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-sm font-medium text-gray-700">OPD Available</span>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.emergencyAvailable}
+              onChange={(e) => setFormData({ ...formData, emergencyAvailable: e.target.checked })}
+              className="w-5 h-5 text-red-600 rounded focus:ring-2 focus:ring-red-500"
+            />
+            <span className="text-sm font-medium text-gray-700">Emergency Available</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="flex gap-3 p-6 pt-0">
+        <Button
+          variant="outline"
+          onClick={onClose}
+          className="flex-1"
+          disabled={loading}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={onSubmit}
+          disabled={loading || !formData.name || !formData.city || !formData.address || !formData.phone}
+          className="flex-1 bg-gradient-to-r from-blue-600 to-green-600"
+        >
+          {loading ? 'Saving...' : isEdit ? 'Update Hospital' : 'Add Hospital'}
+        </Button>
+      </div>
+    </motion.div>
+  </div>
+);
 
 export default HospitalManagement;
